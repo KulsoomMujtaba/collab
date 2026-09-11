@@ -95,7 +95,25 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 ## Next slice
 
-Apply the creator-publishing migration and exercise profile editing, publishing, anonymous public access, and unpublishing end to end. The next product slice is the company creator marketplace.
+Apply the creator-publishing migration, then exercise creator publishing and company discovery end to end. The next product slice is structured campaign requests from a company to a creator.
+
+## Phase 2C implementation
+
+- Authenticated, company-only `/company` workspace backed by Supabase.
+- Published creator query explicitly filters `is_published = true`; RLS independently excludes unpublished profiles from company accounts.
+- Responsive creator-card grid prioritizing name, headline, niches, followers, average views, and fixed rate.
+- Instant client-side name/headline search and single-niche filtering over server-loaded records.
+- Result counts, clear-filter affordances, loading skeleton, no-match state, empty-marketplace state, and connection-error state.
+- Completed company onboarding and subsequent logins route directly into discovery.
+
+Suggested subject: `feat: build the company creator marketplace`
+
+Body:
+
+- add the protected company discovery workspace
+- load published creators and niches from Supabase
+- add responsive search, filtering, creator cards, and empty states
+- route completed company accounts into the marketplace
 
 ## Phase 2B implementation
 
