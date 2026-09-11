@@ -8,6 +8,7 @@ import fcntl
 import json
 import re
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -97,7 +98,7 @@ def main() -> int:
         filename_time = timestamp[:19].replace("T", "_").replace(":", "-")
         log_path = log_dir / f"{filename_time}_{session_id}.md"
 
-    lock_path = log_dir / ".capture.lock"
+    lock_path = Path(tempfile.gettempdir()) / "naano-agent-capture.lock"
     with lock_path.open("a+", encoding="utf-8") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         log = log_path.read_text(encoding="utf-8") if log_path.exists() else new_log(session_id, timestamp, model)
