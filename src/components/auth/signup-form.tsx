@@ -29,9 +29,13 @@ export function SignupForm() {
       password: result.data.password,
       options: { data: { full_name: result.data.fullName, role: result.data.role } },
     });
-    if (error) { setAuthError(error.message); setSubmitting(false); return; }
+    if (error) {
+      const rateLimited = error.message.toLowerCase().includes("rate limit");
+      setAuthError(rateLimited ? "Too many signup attempts were made. Please wait a while before trying again." : error.message);
+      setSubmitting(false); return;
+    }
     if (!data.session) {
-      setAuthError("Check your email to confirm your account, then return here to sign in.");
+      setAuthError("Your account was created, but automatic sign-in is unavailable. Please try signing in.");
       setSubmitting(false); return;
     }
     router.push(`/onboarding/${result.data.role}`);
@@ -39,7 +43,7 @@ export function SignupForm() {
   }
 
   return (
-    <form onSubmit={submit} noValidate className="space-y-5">
+    <><form onSubmit={submit} noValidate className="space-y-5">
       <fieldset><legend className="mb-2 text-sm font-semibold">I&apos;m joining as</legend><div className="grid grid-cols-2 gap-3">{([{ value: "company", label: "A company", note: "Book creators", icon: Building2 }, { value: "creator", label: "A creator", note: "Get booked", icon: UserRound }] as const).map(({ value, label, note, icon: Icon }) => <button type="button" key={value} onClick={() => { setRole(value); setErrors((old) => ({ ...old, role: "" })); }} className={cn("rounded-2xl border p-4 text-left transition", role === value ? "border-primary bg-primary/5 ring-2 ring-primary/10" : "border-border bg-surface hover:border-primary/40")}><Icon size={21} className={role === value ? "text-primary" : "text-muted"} /><span className="mt-3 block text-sm font-bold">{label}</span><span className="mt-0.5 block text-xs text-muted">{note}</span></button>)}</div>{errors.role && <p className="mt-1.5 text-sm text-destructive">{errors.role}</p>}</fieldset>
       <FormField label="Full name" name="fullName" autoComplete="name" placeholder="Your name" error={errors.fullName} />
       <FormField label="Email address" name="email" type="email" autoComplete="email" placeholder="you@company.com" error={errors.email} />
@@ -48,6 +52,6 @@ export function SignupForm() {
       {authError && <p role="alert" className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">{authError}</p>}
       <button disabled={submitting} className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary font-semibold text-primary-foreground transition hover:bg-primary-hover disabled:opacity-60">{submitting && <LoaderCircle size={18} className="animate-spin" />} {submitting ? "Creating account..." : "Continue"}</button>
       <p className="text-center text-sm text-muted">Already have an account? <Link href="/login" className="font-semibold text-primary hover:underline">Sign in</Link></p>
-    </form>
+    </form></>
   );
 }

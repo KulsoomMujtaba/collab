@@ -85,6 +85,7 @@ Phase 0 foundation is complete. Phase 1 frontend implementation now includes:
 - Real Supabase email/password signup, login, logout, session refresh, and protected onboarding routes.
 - Database-backed onboarding drafts and atomic role-specific completion functions.
 - Account bootstrap trigger that creates the profile, permanent-role workspace, and owner membership from trusted signup metadata.
+- Friendly handling for unexpected Supabase signup rate-limit responses.
 
 The application is configured against a Supabase project through local environment values. It accepts the current `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` convention, with legacy anonymous-key compatibility, and normalizes a copied `/rest/v1` endpoint to the project origin. Never commit local keys. The SQL migrations must be applied to the configured project before registration can bootstrap profiles and workspaces.
 
@@ -95,6 +96,19 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 ## Next slice
 
 Apply both SQL migrations to the configured Supabase project, then exercise creator and company registration end to end. Profile publishing follows after the authenticated onboarding flow is proven.
+
+Email verification is deliberately outside the MVP scope. Supabase `Confirm Email` must be disabled for the assignment build, allowing registration to establish a session and continue directly into onboarding without sending transactional email.
+
+## Simplified signup commit context
+
+Suggested subject: `fix: streamline MVP signup`
+
+Body:
+
+- remove the email-confirmation step from the MVP journey
+- continue successful registration directly into onboarding
+- retain useful feedback for unexpected authentication failures
+- document the required Supabase confirmation setting
 
 ## Phase 1 Supabase commit context
 
