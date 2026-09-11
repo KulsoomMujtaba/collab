@@ -97,6 +97,21 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 Apply all migrations through `202609120003_delivery_completion.sql`, then exercise the full company-to-creator workflow end to end. The core MVP lifecycle is now implemented; the next slice is stabilization, visual refinement, and the previously noted minor fixes before deployment.
 
+## Authentication and contrast refinement
+
+- The shared primary palette now uses a deeper maroon with pure-white foreground text, improving contrast for every primary button through the semantic design tokens.
+- The landing page reads the current Supabase session on the server and replaces login/signup actions with role-correct workspace and request links for authenticated users.
+- Session refresh middleware now includes the landing route, so its authentication-aware navigation remains current.
+
+Suggested subject: `fix: reflect sessions and improve button contrast`
+
+Body:
+
+- strengthen contrast across maroon primary actions
+- render role-aware landing page navigation for signed-in users
+- link authenticated visitors directly to their workspace and requests
+- refresh Supabase sessions on the landing route
+
 ## Phase 3C implementation
 
 - Accepted creators can submit a public LinkedIn deliverable URL without leaving their request inbox.

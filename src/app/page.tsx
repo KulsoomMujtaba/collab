@@ -1,4 +1,7 @@
 import { ArrowRight, BadgeCheck, CalendarCheck, Search, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { SignOutButton } from "@/components/auth/sign-out-button";
+import { createClient } from "@/lib/supabase/server";
 
 const creators = [
   { initials: "AM", name: "Amina Malik", role: "B2B growth strategist", niche: "Marketing", followers: "42K", rate: "€650" },
@@ -6,15 +9,20 @@ const creators = [
   { initials: "SR", name: "Sofia Reyes", role: "Founder & sales educator", niche: "Sales", followers: "61K", rate: "€820" },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const role = user?.user_metadata.role === "creator" ? "creator" : "company";
+  const workspaceHref = role === "creator" ? "/creator" : "/company";
+  const requestsHref = role === "creator" ? "/creator/requests" : "/company/requests";
+
   return (
     <main className="min-h-screen overflow-hidden">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-6 sm:px-8">
         <a href="#" className="display text-2xl font-extrabold text-primary">Collab<span className="text-accent">.</span></a>
         <div className="flex items-center gap-2 sm:gap-4">
           <a href="#how-it-works" className="hidden text-sm font-medium text-muted hover:text-foreground sm:block">How it works</a>
-          <a href="/login" className="rounded-full px-4 py-2.5 text-sm font-semibold hover:bg-surface-muted">Log in</a>
-          <a href="/signup" className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary-hover">Join Collab</a>
+          {user ? <><SignOutButton /><Link href={workspaceHref} className="rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-primary-hover">Your workspace</Link></> : <><Link href="/login" className="rounded-full px-4 py-2.5 text-sm font-semibold hover:bg-surface-muted">Log in</Link><Link href="/signup" className="rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition hover:bg-primary-hover">Join Collab</Link></>}
         </div>
       </nav>
 
@@ -30,8 +38,7 @@ export default function Home() {
             Discover trusted B2B creators, send a clear campaign brief, and move from request to published collaboration in one calm workspace.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <a href="#creators" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-6 font-semibold text-primary-foreground transition hover:bg-primary-hover">Find a creator <ArrowRight size={18} /></a>
-            <a href="/signup" className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-surface px-6 font-semibold transition hover:bg-surface-muted">Join as a creator</a>
+            {user ? <><Link href={workspaceHref} className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-6 font-bold text-primary-foreground transition hover:bg-primary-hover">Open your workspace <ArrowRight size={18} /></Link><Link href={requestsHref} className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-surface px-6 font-semibold transition hover:bg-surface-muted">View requests</Link></> : <><a href="#creators" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-6 font-bold text-primary-foreground transition hover:bg-primary-hover">Find a creator <ArrowRight size={18} /></a><Link href="/signup" className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-surface px-6 font-semibold transition hover:bg-surface-muted">Join as a creator</Link></>}
           </div>
           <p className="mt-5 text-sm text-muted">No subscriptions. No hidden fees. Direct partnerships.</p>
         </div>
