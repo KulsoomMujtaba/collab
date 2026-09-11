@@ -13,8 +13,8 @@ export default function Home() {
         <a href="#" className="display text-2xl font-extrabold text-primary">Collab<span className="text-accent">.</span></a>
         <div className="flex items-center gap-2 sm:gap-4">
           <a href="#how-it-works" className="hidden text-sm font-medium text-muted hover:text-foreground sm:block">How it works</a>
-          <a href="#" className="rounded-full px-4 py-2.5 text-sm font-semibold hover:bg-surface-muted">Log in</a>
-          <a href="#" className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary-hover">Join Collab</a>
+          <a href="/login" className="rounded-full px-4 py-2.5 text-sm font-semibold hover:bg-surface-muted">Log in</a>
+          <a href="/signup" className="rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary-hover">Join Collab</a>
         </div>
       </nav>
 
@@ -31,7 +31,7 @@ export default function Home() {
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <a href="#creators" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-6 font-semibold text-primary-foreground transition hover:bg-primary-hover">Find a creator <ArrowRight size={18} /></a>
-            <a href="#" className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-surface px-6 font-semibold transition hover:bg-surface-muted">Join as a creator</a>
+            <a href="/signup" className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-surface px-6 font-semibold transition hover:bg-surface-muted">Join as a creator</a>
           </div>
           <p className="mt-5 text-sm text-muted">No subscriptions. No hidden fees. Direct partnerships.</p>
         </div>

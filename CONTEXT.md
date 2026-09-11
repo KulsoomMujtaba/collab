@@ -69,7 +69,7 @@ This structure can add multi-creator campaigns, agency representation, proposals
 
 ## Current implementation
 
-Phase 0 foundation is in progress:
+Phase 0 foundation is complete. Phase 1 frontend implementation now includes:
 
 - Next.js application configuration and dependency manifest.
 - Responsive Collab landing page showing the intended visual direction and core proposition.
@@ -79,14 +79,31 @@ Phase 0 foundation is in progress:
 - Supabase browser and server client boundaries, ready for environment credentials.
 - Initial relational schema, indexes, update triggers, seed niches, and row-level security policies.
 - Next's automatic agent-rules injection is disabled so the repository's concise `AGENTS.md` remains project-owned.
+- Responsive login and registration routes with password controls, role selection, loading states, and Zod validation.
+- Role-aware company and three-step creator onboarding experiences.
+- Creator profile preview, completion indicator, and local draft persistence.
+- Mock authentication transitions kept behind clear preview-mode messaging until Supabase is connected.
 
 No Supabase or Vercel project is connected yet. Never commit local keys.
 
 Validation target for this phase is a clean type check, lint run, and production build. The build script uses Next's webpack path because Turbopack cannot bind its internal worker port in the current restricted environment. The local machine uses Node 23, which produces a non-blocking engine warning from an ESLint dependency; deployment should use the current Node 22 LTS or Node 24.
 
+Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `/signup`, and `/onboarding/[role]`. The production compiler verifies both company and creator onboarding variants through the shared dynamic route.
+
 ## Next slice
 
-Complete Phase 0 by validating the application and reviewing the migration against a live Supabase project. Phase 1 then implements authentication, role-aware onboarding, creator profile creation, and profile publishing as the first functional vertical slice.
+Validate the Phase 1 interfaces, then connect them to Supabase Auth and replace browser draft storage with workspace and profile persistence. Profile publishing follows after the authenticated onboarding flow is proven.
+
+## Phase 1 frontend commit context
+
+Suggested subject: `feat: build authentication and onboarding flows`
+
+Body:
+
+- add responsive login and role-aware registration interfaces
+- create company and multi-step creator onboarding with frontend validation
+- persist preview-mode drafts locally and provide a creator profile preview
+- connect landing-page entry points and document the Supabase integration boundary
 
 ## Phase 0 commit context
 
