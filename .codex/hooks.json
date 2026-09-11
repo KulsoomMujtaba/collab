@@ -1,0 +1,27 @@
+{
+  "description": "Capture user prompts and final responses for the 8x assignment.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/capture_agent_log.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/capture_agent_log.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
