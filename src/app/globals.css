@@ -8,7 +8,7 @@
   --muted: #735f64;
   --primary: #68172f;
   --primary-hover: #521025;
-  --primary-foreground: #ffffff;
+  --primary-foreground: #fff1ed;
   --accent: #eeb7ad;
   --border: #eadbd8;
   --success: #287a59;
@@ -41,7 +41,7 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-body), sans-serif; }
-a { color: inherit; text-decoration: none; }
+a { text-decoration: none; }
 button, a { -webkit-tap-highlight-color: transparent; }
 ::selection { background: var(--accent); color: var(--foreground); }
 

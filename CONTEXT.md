@@ -99,7 +99,8 @@ Apply all migrations through `202609120003_delivery_completion.sql`, then exerci
 
 ## Authentication and contrast refinement
 
-- The shared primary palette now uses a deeper maroon with pure-white foreground text, improving contrast for every primary button through the semantic design tokens.
+- The shared primary palette uses a deeper maroon with warm off-white foreground text, improving contrast for every primary button through the semantic design tokens.
+- The global anchor reset no longer overrides component text colors, so link-shaped primary buttons correctly render the configured light foreground.
 - The landing page reads the current Supabase session on the server and replaces login/signup actions with role-correct workspace and request links for authenticated users.
 - Session refresh middleware now includes the landing route, so its authentication-aware navigation remains current.
 
@@ -111,6 +112,13 @@ Body:
 - render role-aware landing page navigation for signed-in users
 - link authenticated visitors directly to their workspace and requests
 - refresh Supabase sessions on the landing route
+
+Follow-up subject: `fix: restore light text on linked buttons`
+
+Body:
+
+- stop the global anchor reset from overriding button text colors
+- use a warm off-white foreground across maroon actions
 
 ## Phase 3C implementation
 
