@@ -41,6 +41,18 @@ export const creatorSchema = z.object({
   postRate: z.coerce.number().int().min(1, "Enter a post rate of at least €1."),
 });
 
+export const bookingRequestSchema = z.object({
+  campaignTitle: requiredText("Campaign title").max(140, "Keep the title under 140 characters."),
+  objective: z.string().trim().min(10, "Describe the campaign objective in at least 10 characters.").max(1000),
+  deliverableDescription: z.string().trim().min(10, "Describe the requested post in at least 10 characters.").max(2000),
+  desiredPublishDate: z.string().min(1, "Choose a desired publication date.").refine((value) => {
+    const selected = new Date(`${value}T00:00:00`);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    return selected >= today;
+  }, "Choose today or a future date."),
+  notes: z.string().trim().max(2000, "Keep notes under 2,000 characters."),
+});
+
 export type FieldErrors = Record<string, string>;
 
 export function getFieldErrors(error: z.ZodError): FieldErrors {

@@ -1,6 +1,6 @@
 # Collab project context
 
-Last updated: 11 September 2026
+Last updated: 12 September 2026
 
 ## Product direction
 
@@ -95,7 +95,25 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 ## Next slice
 
-Apply the creator-publishing migration, then exercise creator publishing and company discovery end to end. The next product slice is structured campaign requests from a company to a creator.
+Apply the booking-request migration and exercise company request creation end to end. The next slice is the two-sided booking dashboard and creator accept/decline decisions.
+
+## Phase 3A implementation
+
+- Company users can open a collaboration-request side panel directly from a published creator profile.
+- Two-stage brief and review experience retains creator context and clearly presents the snapshotted rate.
+- Frontend validation covers campaign title, objective, deliverable, future publication date, and optional notes.
+- Atomic `create_booking_request` RPC verifies the company and creator, creates the campaign and booking, snapshots price through the existing trigger, and appends the first booking event.
+- Direct campaign, booking, and event inserts are revoked from authenticated clients so the secured RPC is the only creation path.
+- Anonymous visitors receive a sign-in prompt; creator accounts never receive the company request action.
+
+Suggested subject: `feat: add creator booking requests`
+
+Body:
+
+- add an in-context collaboration request side panel to creator profiles
+- validate and review campaign briefs before submission
+- create campaigns, bookings, and audit events atomically in Supabase
+- enforce company-only request creation and creator availability
 
 ## Phase 2C implementation
 
