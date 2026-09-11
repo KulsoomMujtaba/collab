@@ -23,7 +23,7 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
   const isAuthPage = path === "/login" || path === "/signup";
-  const isProtected = path.startsWith("/onboarding");
+  const isProtected = path.startsWith("/onboarding") || path === "/creator" || path.startsWith("/creator/");
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
@@ -34,7 +34,7 @@ export async function updateSession(request: NextRequest) {
 
   if (user && isAuthPage) {
     const role = user.user_metadata.role === "creator" ? "creator" : "company";
-    return NextResponse.redirect(new URL(`/onboarding/${role}`, request.url));
+    return NextResponse.redirect(new URL(role === "creator" ? "/creator" : "/onboarding/company", request.url));
   }
 
   if (user && path.startsWith("/onboarding/")) {

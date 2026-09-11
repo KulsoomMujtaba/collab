@@ -34,13 +34,16 @@ export function OnboardingForm({ role }: { role: Role }) {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data } = await supabase.from("profiles").select("full_name, onboarding_data").eq("id", user.id).single();
+      const { data } = await supabase.from("profiles").select("full_name, onboarding_data, onboarding_completed_at").eq("id", user.id).single();
       const draft = data?.onboarding_data as CreatorDraft | CompanyDraft | undefined;
       if (draft && Object.keys(draft).length) {
         if (role === "creator") setCreator(draft as CreatorDraft);
         else setCompany(draft as CompanyDraft);
       }
-      else if (role === "creator") setCreator((value) => ({ ...value, displayName: data?.full_name ?? "" }));
+      else if (role === "creator" && data?.onboarding_completed_at) {
+        const { data: existing } = await supabase.from("creator_profiles").select("display_name, headline, bio, country, linkedin_url, avatar_url, follower_count, average_views, post_rate_cents, creator_niches(niches(name))").eq("user_id", user.id).single();
+        if (existing) setCreator({ displayName: existing.display_name, headline: existing.headline, bio: existing.bio, country: existing.country, linkedinUrl: existing.linkedin_url, avatarUrl: existing.avatar_url ?? "", followerCount: String(existing.follower_count), averageViews: String(existing.average_views), postRate: String(existing.post_rate_cents / 100), niches: (existing.creator_niches as unknown as Array<{ niches: { name: string } | null }>).map((item) => item.niches?.name).filter((name): name is string => Boolean(name)) });
+      } else if (role === "creator") setCreator((value) => ({ ...value, displayName: data?.full_name ?? "" }));
     }
     void loadDraft();
   }, [role]);
@@ -134,5 +137,6 @@ function CreatorPreview({ value }: { value: CreatorDraft }) {
 }
 
 function SuccessState({ role }: { role: Role }) {
-  return <main className="flex min-h-screen items-center justify-center bg-background px-5"><div className="w-full max-w-lg rounded-3xl border border-border bg-surface p-8 text-center card-shadow sm:p-12"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#e9f7f0] text-success"><CircleCheck size={32} /></div><p className="mt-7 text-sm font-bold uppercase tracking-[.16em] text-primary">Profile ready</p><h1 className="display mt-3 text-4xl font-extrabold">You&apos;re ready for what&apos;s next.</h1><p className="mt-4 leading-7 text-muted">Your {role} profile is now securely saved. Next, we&apos;ll bring your Collab workspace to life.</p><Link href="/" className="mt-8 inline-flex h-12 items-center justify-center rounded-full bg-primary px-7 font-semibold text-primary-foreground hover:bg-primary-hover">Return to Collab</Link></div></main>;
+  const destination = role === "creator" ? "/creator" : "/";
+  return <main className="flex min-h-screen items-center justify-center bg-background px-5"><div className="w-full max-w-lg rounded-3xl border border-border bg-surface p-8 text-center card-shadow sm:p-12"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#e9f7f0] text-success"><CircleCheck size={32} /></div><p className="mt-7 text-sm font-bold uppercase tracking-[.16em] text-primary">Profile ready</p><h1 className="display mt-3 text-4xl font-extrabold">You&apos;re ready for what&apos;s next.</h1><p className="mt-4 leading-7 text-muted">Your {role} profile is now securely saved. Next, we&apos;ll bring your Collab workspace to life.</p><Link href={destination} className="mt-8 inline-flex h-12 items-center justify-center rounded-full bg-primary px-7 font-semibold text-primary-foreground hover:bg-primary-hover">{role === "creator" ? "Open creator dashboard" : "Return to Collab"}</Link></div></main>;
 }

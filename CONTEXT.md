@@ -95,7 +95,25 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 ## Next slice
 
-Apply both SQL migrations to the configured Supabase project, then exercise creator and company registration end to end. Profile publishing follows after the authenticated onboarding flow is proven.
+Apply the creator-publishing migration and exercise profile editing, publishing, anonymous public access, and unpublishing end to end. The next product slice is the company creator marketplace.
+
+## Phase 2B implementation
+
+- Authenticated creator dashboard with live Supabase profile data and publication status.
+- Existing creator data hydrates back into the onboarding form for profile edits.
+- Secure publish/unpublish RPC with database-enforced completeness checks.
+- Public creator profile route with creator-specific page metadata.
+- Private creators can preview their own public presentation while remaining invisible to anonymous visitors through RLS.
+- Completed creator login and onboarding flows now lead to the dashboard.
+
+Suggested subject: `feat: add creator profile publishing`
+
+Body:
+
+- add the authenticated creator dashboard and reusable profile presentation
+- support editing completed profiles and previewing their public page
+- enforce profile completeness through secure publish and unpublish controls
+- add public creator routes and document the Phase 2B workflow
 
 Email verification is deliberately outside the MVP scope. Supabase `Confirm Email` must be disabled for the assignment build, allowing registration to establish a session and continue directly into onboarding without sending transactional email.
 

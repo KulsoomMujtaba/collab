@@ -25,7 +25,8 @@ export function LoginForm() {
     const { data, error } = await supabase.auth.signInWithPassword(result.data);
     if (error) { setAuthError(error.message); setSubmitting(false); return; }
     const role = data.user.user_metadata.role === "creator" ? "creator" : "company";
-    router.push(`/onboarding/${role}`);
+    const { data: profile } = await supabase.from("profiles").select("onboarding_completed_at").eq("id", data.user.id).single();
+    router.push(profile?.onboarding_completed_at && role === "creator" ? "/creator" : `/onboarding/${role}`);
     router.refresh();
   }
 
