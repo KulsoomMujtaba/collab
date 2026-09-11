@@ -81,10 +81,12 @@ Phase 0 foundation is complete. Phase 1 frontend implementation now includes:
 - Next's automatic agent-rules injection is disabled so the repository's concise `AGENTS.md` remains project-owned.
 - Responsive login and registration routes with password controls, role selection, loading states, and Zod validation.
 - Role-aware company and three-step creator onboarding experiences.
-- Creator profile preview, completion indicator, and local draft persistence.
-- Mock authentication transitions kept behind clear preview-mode messaging until Supabase is connected.
+- Creator profile preview, completion indicator, and resumable draft persistence.
+- Real Supabase email/password signup, login, logout, session refresh, and protected onboarding routes.
+- Database-backed onboarding drafts and atomic role-specific completion functions.
+- Account bootstrap trigger that creates the profile, permanent-role workspace, and owner membership from trusted signup metadata.
 
-No Supabase or Vercel project is connected yet. Never commit local keys.
+The application is configured against a Supabase project through local environment values. It accepts the current `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` convention, with legacy anonymous-key compatibility, and normalizes a copied `/rest/v1` endpoint to the project origin. Never commit local keys. The SQL migrations must be applied to the configured project before registration can bootstrap profiles and workspaces.
 
 Validation target for this phase is a clean type check, lint run, and production build. The build script uses Next's webpack path because Turbopack cannot bind its internal worker port in the current restricted environment. The local machine uses Node 23, which produces a non-blocking engine warning from an ESLint dependency; deployment should use the current Node 22 LTS or Node 24.
 
@@ -92,7 +94,18 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 ## Next slice
 
-Validate the Phase 1 interfaces, then connect them to Supabase Auth and replace browser draft storage with workspace and profile persistence. Profile publishing follows after the authenticated onboarding flow is proven.
+Apply both SQL migrations to the configured Supabase project, then exercise creator and company registration end to end. Profile publishing follows after the authenticated onboarding flow is proven.
+
+## Phase 1 Supabase commit context
+
+Suggested subject: `feat: connect onboarding to Supabase`
+
+Body:
+
+- connect signup, login, logout, session refresh, and protected routes
+- bootstrap role-specific workspaces whenever an account is created
+- persist onboarding drafts and complete profiles through secure database functions
+- normalize Supabase configuration and document the migration requirement
 
 ## Phase 1 frontend commit context
 

@@ -7,6 +7,7 @@ import { FormEvent, useState } from "react";
 import { FormField } from "@/components/ui/form-field";
 import { cn } from "@/lib/utils";
 import { getFieldErrors, signupSchema, type FieldErrors } from "@/lib/validation";
+import { createClient } from "@/lib/supabase/client";
 
 export function SignupForm() {
   const router = useRouter();
@@ -14,16 +15,27 @@ export function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [authError, setAuthError] = useState("");
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const values = { ...Object.fromEntries(new FormData(event.currentTarget)), role };
     const result = signupSchema.safeParse(values);
     if (!result.success) return setErrors(getFieldErrors(result.error));
-    setErrors({}); setSubmitting(true);
-    localStorage.setItem("collab:role", result.data.role);
-    localStorage.setItem("collab:name", result.data.fullName);
-    window.setTimeout(() => router.push(`/onboarding/${result.data.role}`), 450);
+    setErrors({}); setAuthError(""); setSubmitting(true);
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signUp({
+      email: result.data.email,
+      password: result.data.password,
+      options: { data: { full_name: result.data.fullName, role: result.data.role } },
+    });
+    if (error) { setAuthError(error.message); setSubmitting(false); return; }
+    if (!data.session) {
+      setAuthError("Check your email to confirm your account, then return here to sign in.");
+      setSubmitting(false); return;
+    }
+    router.push(`/onboarding/${result.data.role}`);
+    router.refresh();
   }
 
   return (
@@ -33,7 +45,8 @@ export function SignupForm() {
       <FormField label="Email address" name="email" type="email" autoComplete="email" placeholder="you@company.com" error={errors.email} />
       <div className="relative"><FormField label="Password" name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" placeholder="At least 8 characters" error={errors.password} /><button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-3 top-10 rounded-lg p-2 text-muted hover:bg-surface-muted">{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>
       <FormField label="Confirm password" name="confirmPassword" type={showPassword ? "text" : "password"} autoComplete="new-password" placeholder="Repeat your password" error={errors.confirmPassword} />
-      <button disabled={submitting} className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary font-semibold text-primary-foreground transition hover:bg-primary-hover disabled:opacity-60">{submitting && <LoaderCircle size={18} className="animate-spin" />} Continue</button>
+      {authError && <p role="alert" className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">{authError}</p>}
+      <button disabled={submitting} className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary font-semibold text-primary-foreground transition hover:bg-primary-hover disabled:opacity-60">{submitting && <LoaderCircle size={18} className="animate-spin" />} {submitting ? "Creating account..." : "Continue"}</button>
       <p className="text-center text-sm text-muted">Already have an account? <Link href="/login" className="font-semibold text-primary hover:underline">Sign in</Link></p>
     </form>
   );

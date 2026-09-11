@@ -31,7 +31,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Add the URL and anonymous key from a fresh Supabase project to `.env.local`. Apply the SQL files in `supabase/migrations` before testing authenticated flows.
+Add the project URL and publishable key from a fresh Supabase project to `.env.local`. Apply the SQL files in `supabase/migrations` in filename order before testing authenticated flows.
 
 ## Project documentation
 

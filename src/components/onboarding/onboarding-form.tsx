@@ -1,11 +1,13 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, BadgeCheck, Check, CircleCheck, Save, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Check, CircleCheck, LoaderCircle, Save, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { FormField, TextAreaField } from "@/components/ui/form-field";
 import { cn } from "@/lib/utils";
 import { companySchema, creatorSchema, getFieldErrors, type FieldErrors } from "@/lib/validation";
+import { createClient } from "@/lib/supabase/client";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 
 const nicheOptions = ["Artificial Intelligence", "B2B Marketing", "Future of Work", "Leadership", "Sales", "SaaS", "Startups", "Technology"];
 const creatorSteps = ["Your profile", "Audience & rate", "Preview"];
@@ -24,29 +26,38 @@ export function OnboardingForm({ role }: { role: Role }) {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [saved, setSaved] = useState(false);
   const [complete, setComplete] = useState(false);
-
-  const storageKey = `collab:onboarding:${role}`;
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   useEffect(() => {
-    const stored = localStorage.getItem(storageKey);
-    const name = localStorage.getItem("collab:name") ?? "";
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      // Drafts are an external browser store; hydrate them once after mount.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (role === "creator") setCreator(parsed);
-      else setCompany(parsed);
-    } else if (role === "creator" && name) setCreator((draft) => ({ ...draft, displayName: name }));
-  }, [role, storageKey]);
+    async function loadDraft() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from("profiles").select("full_name, onboarding_data").eq("id", user.id).single();
+      const draft = data?.onboarding_data as CreatorDraft | CompanyDraft | undefined;
+      if (draft && Object.keys(draft).length) {
+        if (role === "creator") setCreator(draft as CreatorDraft);
+        else setCompany(draft as CompanyDraft);
+      }
+      else if (role === "creator") setCreator((value) => ({ ...value, displayName: data?.full_name ?? "" }));
+    }
+    void loadDraft();
+  }, [role]);
 
   const completion = useMemo(() => {
     const values = role === "creator" ? Object.values(creator).filter((value) => Array.isArray(value) ? value.length : value).length : Object.values(company).filter(Boolean).length;
     return Math.round((values / (role === "creator" ? 10 : 4)) * 100);
   }, [company, creator, role]);
 
-  function saveDraft() {
-    localStorage.setItem(storageKey, JSON.stringify(role === "creator" ? creator : company));
-    setSaved(true); window.setTimeout(() => setSaved(false), 1600);
+  async function saveDraft() {
+    setSaving(true); setSaveError("");
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setSaveError("Your session expired. Sign in again to continue."); setSaving(false); return false; }
+    const { error } = await supabase.from("profiles").update({ onboarding_data: role === "creator" ? creator : company }).eq("id", user.id);
+    if (error) { setSaveError(error.message); setSaving(false); return false; }
+    setSaving(false); setSaved(true); window.setTimeout(() => setSaved(false), 1600); return true;
   }
 
   function validateCreatorStep() {
@@ -59,26 +70,42 @@ export function OnboardingForm({ role }: { role: Role }) {
     return Object.keys(visible).length === 0;
   }
 
-  function next() {
+  async function next() {
     if (!validateCreatorStep()) return;
-    saveDraft(); setStep((current) => Math.min(current + 1, 2)); window.scrollTo({ top: 0, behavior: "smooth" });
+    if (!await saveDraft()) return;
+    setStep((current) => Math.min(current + 1, 2)); window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function finish() {
+  async function finish() {
     const result = role === "creator" ? creatorSchema.safeParse(creator) : companySchema.safeParse(company);
     if (!result.success) { setErrors(getFieldErrors(result.error)); if (role === "creator") setStep(0); return; }
-    saveDraft(); setErrors({}); setComplete(true);
+    setErrors({}); setSaveError(""); setSaving(true);
+    const supabase = createClient();
+    const response = role === "creator"
+      ? await supabase.rpc("complete_creator_onboarding", {
+          display_name: creator.displayName, headline: creator.headline, bio: creator.bio,
+          country: creator.country, linkedin_url: creator.linkedinUrl, avatar_url: creator.avatarUrl,
+          follower_count: Number(creator.followerCount), average_views: Number(creator.averageViews),
+          post_rate_cents: Number(creator.postRate) * 100, niche_names: creator.niches,
+        })
+      : await supabase.rpc("complete_company_onboarding", {
+          company_name: company.companyName, website_url: company.websiteUrl,
+          company_description: company.description, logo_url: company.logoUrl,
+        });
+    if (response.error) { setSaveError(response.error.message); setSaving(false); return; }
+    setSaving(false); setComplete(true);
   }
 
   if (complete) return <SuccessState role={role} />;
 
   return (
     <main className="min-h-screen bg-background">
-      <header className="border-b border-border bg-surface"><div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8"><Link href="/" className="display text-2xl font-extrabold text-primary">Collab<span className="text-accent">.</span></Link><div className="flex items-center gap-3"><span className={cn("hidden items-center gap-1.5 text-xs font-semibold text-success sm:flex", !saved && "invisible")}><Check size={14} /> Draft saved</span><button onClick={saveDraft} className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm font-semibold hover:bg-surface-muted"><Save size={16} /> Save & exit</button></div></div></header>
+      <header className="border-b border-border bg-surface"><div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8"><Link href="/" className="display text-2xl font-extrabold text-primary">Collab<span className="text-accent">.</span></Link><div className="flex items-center gap-1 sm:gap-3"><span className={cn("hidden items-center gap-1.5 text-xs font-semibold text-success sm:flex", !saved && "invisible")}><Check size={14} /> Draft saved</span><button onClick={() => void saveDraft()} disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-3 text-sm font-semibold hover:bg-surface-muted disabled:opacity-60 sm:px-4">{saving ? <LoaderCircle size={16} className="animate-spin" /> : <Save size={16} />} <span className="hidden sm:inline">Save draft</span></button><SignOutButton /></div></div></header>
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[240px_1fr] lg:py-14">
         <aside><p className="text-xs font-bold uppercase tracking-[.16em] text-primary">{role} setup</p><h1 className="display mt-3 text-3xl font-extrabold">Make a strong first impression.</h1><p className="mt-3 text-sm leading-6 text-muted">You can edit these details later.</p><div className="mt-7 h-2 overflow-hidden rounded-full bg-surface-muted"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${completion}%` }} /></div><p className="mt-2 text-xs font-semibold text-muted">{completion}% complete</p>{role === "creator" && <ol className="mt-9 hidden space-y-5 lg:block">{creatorSteps.map((label, index) => <li key={label} className={cn("flex items-center gap-3 text-sm font-semibold", index <= step ? "text-foreground" : "text-muted/60")}><span className={cn("flex h-7 w-7 items-center justify-center rounded-full border text-xs", index < step ? "border-primary bg-primary text-primary-foreground" : index === step ? "border-primary text-primary" : "border-border")}>{index < step ? <Check size={14} /> : index + 1}</span>{label}</li>)}</ol>}</aside>
         <section className="rounded-3xl border border-border bg-surface p-5 card-shadow sm:p-8 lg:p-10">{role === "company" ? <CompanyFields value={company} setValue={setCompany} errors={errors} /> : step === 0 ? <CreatorIdentity value={creator} setValue={setCreator} errors={errors} /> : step === 1 ? <CreatorAudience value={creator} setValue={setCreator} errors={errors} /> : <CreatorPreview value={creator} />}
-          <div className="mt-9 flex items-center justify-between border-t border-border pt-6">{role === "creator" && step > 0 ? <button onClick={() => { setErrors({}); setStep((value) => value - 1); }} className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-foreground"><ArrowLeft size={17} /> Back</button> : <span />}{role === "creator" && step < 2 ? <button onClick={next} className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary-hover">Continue <ArrowRight size={17} /></button> : <button onClick={finish} className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"><Sparkles size={17} /> {role === "creator" ? "Finish profile" : "Finish setup"}</button>}</div>
+          {saveError && <p role="alert" className="mt-6 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">{saveError}</p>}
+          <div className="mt-9 flex items-center justify-between border-t border-border pt-6">{role === "creator" && step > 0 ? <button onClick={() => { setErrors({}); setStep((value) => value - 1); }} className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-foreground"><ArrowLeft size={17} /> Back</button> : <span />}{role === "creator" && step < 2 ? <button onClick={() => void next()} disabled={saving} className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-60">{saving ? <LoaderCircle size={17} className="animate-spin" /> : <>Continue <ArrowRight size={17} /></>}</button> : <button onClick={() => void finish()} disabled={saving} className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-60">{saving ? <LoaderCircle size={17} className="animate-spin" /> : <Sparkles size={17} />} {saving ? "Saving..." : role === "creator" ? "Finish profile" : "Finish setup"}</button>}</div>
         </section>
       </div>
     </main>
@@ -107,5 +134,5 @@ function CreatorPreview({ value }: { value: CreatorDraft }) {
 }
 
 function SuccessState({ role }: { role: Role }) {
-  return <main className="flex min-h-screen items-center justify-center bg-background px-5"><div className="w-full max-w-lg rounded-3xl border border-border bg-surface p-8 text-center card-shadow sm:p-12"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#e9f7f0] text-success"><CircleCheck size={32} /></div><p className="mt-7 text-sm font-bold uppercase tracking-[.16em] text-primary">Profile ready</p><h1 className="display mt-3 text-4xl font-extrabold">You&apos;re ready for what&apos;s next.</h1><p className="mt-4 leading-7 text-muted">Your {role} onboarding is saved in preview mode. Supabase will persist it securely in the next integration chunk.</p><Link href="/" className="mt-8 inline-flex h-12 items-center justify-center rounded-full bg-primary px-7 font-semibold text-primary-foreground hover:bg-primary-hover">Return to Collab</Link></div></main>;
+  return <main className="flex min-h-screen items-center justify-center bg-background px-5"><div className="w-full max-w-lg rounded-3xl border border-border bg-surface p-8 text-center card-shadow sm:p-12"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#e9f7f0] text-success"><CircleCheck size={32} /></div><p className="mt-7 text-sm font-bold uppercase tracking-[.16em] text-primary">Profile ready</p><h1 className="display mt-3 text-4xl font-extrabold">You&apos;re ready for what&apos;s next.</h1><p className="mt-4 leading-7 text-muted">Your {role} profile is now securely saved. Next, we&apos;ll bring your Collab workspace to life.</p><Link href="/" className="mt-8 inline-flex h-12 items-center justify-center rounded-full bg-primary px-7 font-semibold text-primary-foreground hover:bg-primary-hover">Return to Collab</Link></div></main>;
 }
