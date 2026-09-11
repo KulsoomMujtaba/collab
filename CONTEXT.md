@@ -100,6 +100,7 @@ The core MVP lifecycle is implemented and deployed. Next, exercise the authentic
 ## Production deployment
 
 - Public production URL: `https://naano-wheat.vercel.app`
+- Public repository: `https://github.com/KulsoomMujtaba/collab`
 - Hosting: Vercel project `naano`.
 - Production and build environments use the configured Supabase project URL and publishable key; secrets remain outside source control.
 - The public landing, login, and signup routes return successfully from the deployment.

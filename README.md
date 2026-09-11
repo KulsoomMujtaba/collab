@@ -4,6 +4,8 @@ Collab is a focused marketplace for B2B creator partnerships. Companies discover
 
 **Live application:** [naano-wheat.vercel.app](https://naano-wheat.vercel.app)
 
+**Public repository:** [github.com/KulsoomMujtaba/collab](https://github.com/KulsoomMujtaba/collab)
+
 This project is an independent rebuild inspired by the core marketplace workflow of Naano. The goal is not feature parity: it is a polished, complete MVP that proves the most important exchange between a company and a creator.
 
 ## MVP journey
