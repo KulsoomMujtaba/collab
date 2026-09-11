@@ -95,7 +95,24 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 ## Next slice
 
-Apply all migrations through `202609120003_delivery_completion.sql`, then exercise the full company-to-creator workflow end to end. The core MVP lifecycle is now implemented; the next slice is stabilization, visual refinement, and the previously noted minor fixes before deployment.
+The core MVP lifecycle is implemented and deployed. Next, exercise the authenticated company-to-creator workflow end to end, resolve the remaining minor fixes, and prepare the short assignment walkthrough.
+
+## Production deployment
+
+- Public production URL: `https://naano-wheat.vercel.app`
+- Hosting: Vercel project `naano`.
+- Production and build environments use the configured Supabase project URL and publishable key; secrets remain outside source control.
+- The public landing, login, and signup routes return successfully from the deployment.
+- The Supabase REST API is reachable, and Phase 3C RPCs are present while correctly rejecting anonymous execution.
+- Automatic Vercel-to-GitHub linking is not enabled because the Vercel account still needs a GitHub login connection. Manual deployments work; connect GitHub in Vercel later to enable deploy-on-push.
+
+Suggested subject: `docs: record the production deployment`
+
+Body:
+
+- add the public Vercel application link to the project overview
+- document production hosting and Supabase verification
+- capture the remaining GitHub integration and walkthrough steps
 
 ## Authentication and contrast refinement
 

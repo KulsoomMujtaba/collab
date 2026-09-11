@@ -2,6 +2,8 @@
 
 Collab is a focused marketplace for B2B creator partnerships. Companies discover credible LinkedIn creators, send a structured campaign request, and follow the collaboration through acceptance, delivery, and completion. Creators present their work and manage opportunities without moving the agreement across scattered DMs and spreadsheets.
 
+**Live application:** [naano-wheat.vercel.app](https://naano-wheat.vercel.app)
+
 This project is an independent rebuild inspired by the core marketplace workflow of Naano. The goal is not feature parity: it is a polished, complete MVP that proves the most important exchange between a company and a creator.
 
 ## MVP journey
@@ -39,4 +41,4 @@ See [CONTEXT.md](./CONTEXT.md) for product decisions, architecture, status, and 
 
 ## Assignment delivery
 
-The final submission will include a public live link, public repository, and a walkthrough under five minutes. Agent-session capture artifacts are committed under `.agent-logs/` throughout development.
+The application is deployed publicly on Vercel. The final submission will also include the public repository and a walkthrough under five minutes. Agent-session capture artifacts are committed under `.agent-logs/` throughout development.
