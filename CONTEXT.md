@@ -95,7 +95,26 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 ## Next slice
 
-Apply the booking-request migration and exercise company request creation end to end. The next slice is the two-sided booking dashboard and creator accept/decline decisions.
+Apply the booking-decisions migration and exercise request creation, creator response, and company tracking end to end. The next slice is creator deliverable submission and company completion.
+
+## Phase 3B implementation
+
+- Creator request inbox with status filters, expandable briefs, pricing, dates, and company context.
+- Creator-only accept and decline actions; decline requires explicit confirmation.
+- Company request tracker with creator context, status filters, and expandable campaign details.
+- Role-scoped read RPCs return only bookings belonging to the current creator or company workspace.
+- Booking RPC execution is explicitly unavailable to anonymous clients.
+- Atomic response RPC locks the booking, permits only `pending → accepted` or `pending → declined`, timestamps the response, and appends an audit event.
+- Workspace navigation and request-success feedback link both roles into their booking views.
+
+Suggested subject: `feat: add booking management and creator decisions`
+
+Body:
+
+- build company and creator request dashboards with status filters
+- add expandable campaign details and counterpart context
+- support secure creator accept and decline decisions
+- record every booking response as an append-only event
 
 ## Phase 3A implementation
 
