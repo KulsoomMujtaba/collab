@@ -53,6 +53,17 @@ export const bookingRequestSchema = z.object({
   notes: z.string().trim().max(2000, "Keep notes under 2,000 characters."),
 });
 
+export const deliverableSchema = z.object({
+  publicUrl: z.string().trim().url("Enter a complete URL, including https://").refine((value) => {
+    try {
+      const hostname = new URL(value).hostname.toLowerCase();
+      return hostname === "linkedin.com" || hostname.endsWith(".linkedin.com");
+    } catch {
+      return false;
+    }
+  }, "Use a public LinkedIn URL."),
+});
+
 export type FieldErrors = Record<string, string>;
 
 export function getFieldErrors(error: z.ZodError): FieldErrors {

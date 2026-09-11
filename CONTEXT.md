@@ -95,7 +95,27 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 ## Next slice
 
-Apply the booking-decisions migration and exercise request creation, creator response, and company tracking end to end. The next slice is creator deliverable submission and company completion.
+Apply all migrations through `202609120003_delivery_completion.sql`, then exercise the full company-to-creator workflow end to end. The core MVP lifecycle is now implemented; the next slice is stabilization, visual refinement, and the previously noted minor fixes before deployment.
+
+## Phase 3C implementation
+
+- Accepted creators can submit a public LinkedIn deliverable URL without leaving their request inbox.
+- Frontend URL validation checks for a complete LinkedIn URL before submission; the database independently applies the same domain boundary.
+- Companies receive the submitted post in their request tracker and review it in a new tab before confirming completion.
+- Completion requires an explicit confirmation step to prevent accidental finalization.
+- Role-scoped security-definer functions lock the booking and enforce `accepted → submitted → completed` transitions atomically.
+- Deliverables remain separate records, while booking submission and completion timestamps make lifecycle reporting straightforward.
+- Every successful transition appends an audit event; direct authenticated writes to deliverables and bookings are unavailable.
+- Submitted and completed filters and persistent final states are available to both roles.
+
+Suggested subject: `feat: complete the collaboration lifecycle`
+
+Body:
+
+- let creators submit published LinkedIn deliverables
+- let companies review and confirm completion
+- enforce accepted-to-submitted-to-completed transitions
+- preserve final lifecycle events and dashboard states
 
 ## Phase 3B implementation
 

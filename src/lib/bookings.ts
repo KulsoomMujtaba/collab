@@ -12,6 +12,9 @@ export type BookingBase = {
   currency: string;
   created_at: string;
   responded_at: string | null;
+  deliverable_public_url: string | null;
+  deliverable_submitted_at: string | null;
+  completed_at: string | null;
 };
 
 export type CreatorBooking = BookingBase & { company_name: string };
@@ -20,6 +23,7 @@ export type CompanyBooking = BookingBase & { creator_workspace_id: string; creat
 export const bookingFilters: Array<{ value: "all" | BookingStatus; label: string }> = [
   { value: "all", label: "All" }, { value: "pending", label: "Pending" },
   { value: "accepted", label: "Accepted" }, { value: "declined", label: "Declined" },
+  { value: "submitted", label: "Submitted" }, { value: "completed", label: "Completed" },
 ];
 
 export function formatBookingDate(value: string) {
