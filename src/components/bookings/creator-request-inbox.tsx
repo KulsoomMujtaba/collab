@@ -1,6 +1,7 @@
 "use client";
 
-import { CalendarDays, Check, ChevronDown, ExternalLink, LoaderCircle, Send, X } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, ExternalLink, LoaderCircle, MessageCircle, Send, X } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { StatusBadge } from "@/components/bookings/status-badge";
@@ -42,6 +43,7 @@ export function CreatorRequestInbox({ initialBookings, loadError }: { initialBoo
       {booking.booking_status === "pending" && <div className="mt-6 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-end">{confirmDecline === booking.booking_id ? <div className="flex flex-1 flex-col gap-3 rounded-2xl bg-destructive/5 p-4 sm:flex-row sm:items-center"><p className="mr-auto text-sm font-semibold">Decline this request? This can&apos;t be undone.</p><button onClick={() => setConfirmDecline("")} className="text-sm font-semibold text-muted">Keep request</button><button onClick={() => void decide(booking.booking_id, "declined")} disabled={busyId === booking.booking_id} className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-destructive px-4 text-sm font-semibold text-white disabled:opacity-60">{busyId === booking.booking_id ? <LoaderCircle size={16} className="animate-spin" /> : <X size={16} />} Decline</button></div> : <><button onClick={() => setConfirmDecline(booking.booking_id)} className="h-11 rounded-full border border-border px-5 text-sm font-semibold hover:bg-surface-muted">Decline</button><button onClick={() => void decide(booking.booking_id, "accepted")} disabled={busyId === booking.booking_id} className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-60">{busyId === booking.booking_id ? <LoaderCircle size={17} className="animate-spin" /> : <Check size={17} />} Accept request</button></>}</div>}
       {booking.booking_status === "accepted" && <DeliverableForm bookingId={booking.booking_id} onSubmitted={markSubmitted} />}
       {(booking.booking_status === "submitted" || booking.booking_status === "completed") && booking.deliverable_public_url && <DeliverableState booking={booking} />}
+      <div className="mt-5 border-t border-border pt-4"><Link href={`/bookings/${booking.booking_id}`} className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"><MessageCircle size={16} />{["accepted", "submitted", "completed"].includes(booking.booking_status) ? "Open details & messages" : "View booking details"}</Link></div>
     </article>)}</div> : <EmptyState title={bookings.length ? "No requests in this view" : "No collaboration requests yet"} description={bookings.length ? "Choose another status to see your requests." : "When a company wants to work with you, their brief will appear here."} />}
   </>;
 }

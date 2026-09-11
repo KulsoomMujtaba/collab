@@ -1,6 +1,6 @@
 # Collab
 
-Collab is a focused marketplace for B2B creator partnerships. Companies discover credible LinkedIn creators, send a structured campaign request, and follow the collaboration through acceptance, delivery, and completion. Creators present their work and manage opportunities without moving the agreement across scattered DMs and spreadsheets.
+Collab is a focused marketplace for B2B creator partnerships. Companies discover credible LinkedIn creators, send a structured campaign request, and follow the collaboration through acceptance, delivery, and completion. Once a request is accepted, both sides can keep essential coordination in a lightweight collaboration thread.
 
 **Live application:** [naano-wheat.vercel.app](https://naano-wheat.vercel.app)
 
@@ -14,10 +14,11 @@ This project is an independent rebuild inspired by the core marketplace workflow
 2. A company registers and browses or filters published creators.
 3. The company sends a campaign request with a concise brief and desired date.
 4. The creator accepts or declines the request.
-5. An accepted creator submits the published LinkedIn URL.
-6. The company confirms completion.
+5. Once accepted, both sides can message within that collaboration.
+6. The creator submits the published LinkedIn URL.
+7. The company confirms completion.
 
-Payments, chat, agencies, AI search, and negotiation are deliberately outside the first release.
+Payments, standalone inboxes, attachments, read receipts, agencies, AI search, and negotiation are deliberately outside the first release.
 
 ## Foundation
 

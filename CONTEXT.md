@@ -17,6 +17,7 @@ The brand is maroon-led with warm cream, rose, and charcoal supporting colors. A
 - Publish or unpublish the profile.
 - View incoming campaign requests.
 - Accept or decline a pending request.
+- Message the company inside an accepted collaboration.
 - For an accepted request, submit a public LinkedIn deliverable URL.
 
 ### Company
@@ -26,10 +27,11 @@ The brand is maroon-led with warm cream, rose, and charcoal supporting colors. A
 - View creator details and send a structured campaign request.
 - Supply campaign title, objective, deliverable description, desired publish date, and optional notes.
 - Track requests and confirm a submitted collaboration as complete.
+- Message the creator inside an accepted collaboration.
 
 ### Deferred
 
-Payments, internal messaging, negotiation, OAuth, email verification, agencies, team-management UI, reviews, analytics, AI search, and MCP integrations.
+Payments, standalone inboxes, message attachments, read receipts, typing indicators, negotiation, OAuth, email verification, agencies, team-management UI, reviews, analytics, AI search, and MCP integrations.
 
 ## Workflow
 
@@ -54,6 +56,7 @@ The database is intentionally broader than the first UI:
 - `campaigns` groups bookings, even though the first company flow creates a campaign inline.
 - `bookings` owns the commercial snapshot and status machine.
 - `deliverables` stores creator submissions separately from bookings.
+- `booking_messages` stores the lightweight participant thread for each collaboration.
 - `booking_events` provides an append-only audit history and future notification feed.
 
 This structure can add multi-creator campaigns, agency representation, proposals, messages, payment ledgers, analytics, and smarter discovery without replacing the core entities.
@@ -95,7 +98,25 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 ## Next slice
 
-The core MVP lifecycle is implemented and deployed. Next, redeploy the expanded landing experience, exercise the authenticated company-to-creator workflow end to end, resolve any final minor fixes, and prepare the short assignment walkthrough.
+Apply `202609120004_booking_messages.sql`, then exercise messaging from both sides of an accepted booking. After verification, deploy the messaging slice and prepare the short assignment walkthrough.
+
+## Collaboration messaging
+
+- A shared `/bookings/[id]` detail route presents the complete campaign brief, counterpart, status, commercial terms, submitted deliverable, and collaboration thread.
+- Company and creator request cards link into the same detail experience; the database resolves the viewer role and permits access only to the booked creator or requesting company workspace.
+- Messages persist in `booking_messages` with sender identity, body, and timestamp and are returned chronologically through participant-scoped RPCs.
+- Message sending is available only for accepted, submitted, and completed bookings. Pending, declined, and cancelled bookings show an unavailable state.
+- Both frontend validation and the database enforce trimmed plain-text messages between 1 and 2,000 characters.
+- The feature deliberately excludes a standalone inbox, attachments, read receipts, typing indicators, editing, and deletion.
+
+Suggested subject: `feat: add collaboration messaging`
+
+Body:
+
+- add participant-only booking messages and secure Supabase RPCs
+- create a shared collaboration detail page for both roles
+- enable lightweight messaging after creator acceptance
+- link company and creator request cards into the collaboration
 
 ## Landing page product narrative
 

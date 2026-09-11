@@ -20,6 +20,25 @@ export type BookingBase = {
 export type CreatorBooking = BookingBase & { company_name: string };
 export type CompanyBooking = BookingBase & { creator_workspace_id: string; creator_name: string; creator_headline: string; creator_avatar_url: string | null };
 
+export type BookingDetail = BookingBase & {
+  company_name: string;
+  creator_name: string;
+  creator_headline: string;
+  creator_avatar_url: string | null;
+  viewer_role: "company" | "creator";
+};
+
+export type BookingMessage = {
+  message_id: string;
+  sender_id: string;
+  sender_name: string;
+  sender_role: "company" | "creator";
+  body: string;
+  created_at: string;
+};
+
+export const messagingStatuses: BookingStatus[] = ["accepted", "submitted", "completed"];
+
 export const bookingFilters: Array<{ value: "all" | BookingStatus; label: string }> = [
   { value: "all", label: "All" }, { value: "pending", label: "Pending" },
   { value: "accepted", label: "Accepted" }, { value: "declined", label: "Declined" },

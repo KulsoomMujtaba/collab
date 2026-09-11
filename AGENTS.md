@@ -21,4 +21,4 @@ Read `README.md` and `CONTEXT.md` before changing code. Treat `CONTEXT.md` as th
 - One booking represents one sponsored LinkedIn post.
 - Currency is EUR; payment happens outside Collab.
 - Booking flow: pending → accepted/declined → submitted → completed.
-- Agencies, teams UI, payments, chat, reviews, analytics, and AI search are deferred.
+- Agencies, teams UI, payments, standalone inboxes, attachments, read receipts, reviews, analytics, and AI search are deferred.

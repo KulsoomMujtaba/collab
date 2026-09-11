@@ -64,6 +64,10 @@ export const deliverableSchema = z.object({
   }, "Use a public LinkedIn URL."),
 });
 
+export const bookingMessageSchema = z.object({
+  body: z.string().trim().min(1, "Write a message before sending.").max(2000, "Keep messages under 2,000 characters."),
+});
+
 export type FieldErrors = Record<string, string>;
 
 export function getFieldErrors(error: z.ZodError): FieldErrors {
