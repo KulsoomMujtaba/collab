@@ -95,7 +95,25 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 ## Next slice
 
-The core MVP lifecycle is implemented and deployed. Next, exercise the authenticated company-to-creator workflow end to end, resolve the remaining minor fixes, and prepare the short assignment walkthrough.
+The core MVP lifecycle is implemented and deployed. Next, redeploy the expanded landing experience, exercise the authenticated company-to-creator workflow end to end, resolve any final minor fixes, and prepare the short assignment walkthrough.
+
+## Landing page product narrative
+
+- The original hero remains the primary first impression, while every section below it now demonstrates a concrete part of the product.
+- The marketplace preview uses four clearly labelled sample profiles with realistic B2B niches, audience sizes, average views, rates, and profile photos, ensuring the landing page always presents a complete marketplace.
+- Sample cards are intentionally non-interactive so they cannot be mistaken for real profiles; the actual company marketplace remains fully Supabase-backed.
+- A visual lifecycle workspace reuses Collab status badges, request details, deliverable review, and completion controls to explain `pending → accepted → submitted → completed`.
+- A focused company-versus-creator section explains the distinct value and responsibilities on each side of the marketplace.
+- The page closes with a strong role-aware CTA and a complete product footer.
+
+Suggested subject: `feat: turn the landing page into a product preview`
+
+Body:
+
+- present a complete marketplace preview with realistic sample creators
+- demonstrate the collaboration lifecycle through real UI patterns
+- clarify the company and creator experiences
+- add a focused closing CTA and complete footer
 
 ## Production deployment
 
