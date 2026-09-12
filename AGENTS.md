@@ -19,6 +19,6 @@ Read `README.md` and `CONTEXT.md` before changing code. Treat `CONTEXT.md` as th
 
 - One permanent role per account in the MVP: company or creator.
 - One booking represents one sponsored LinkedIn post.
-- Currency is EUR; payment happens outside Collab.
+- Currency is EUR; money moves outside Collab while escrow-like statuses are tracked manually.
 - Booking flow: pending → accepted/declined → submitted → completed.
-- Agencies, teams UI, payments, standalone inboxes, attachments, read receipts, reviews, analytics, and AI search are deferred.
+- Agencies, teams UI, real payment processing, standalone inboxes, attachments, read receipts, reviews, analytics, and AI search are deferred.

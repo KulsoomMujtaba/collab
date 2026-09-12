@@ -18,6 +18,8 @@ The brand is maroon-led with warm cream, rose, and charcoal supporting colors. A
 - View incoming campaign requests.
 - Accept or decline a pending request.
 - Message the company inside an accepted collaboration.
+- Submit the deliverable only after the company marks the fee as deposited and held.
+- Confirm receipt after approved work releases the tracked payment.
 - For an accepted request, submit a public LinkedIn deliverable URL.
 
 ### Company
@@ -28,16 +30,18 @@ The brand is maroon-led with warm cream, rose, and charcoal supporting colors. A
 - Supply campaign title, objective, deliverable description, desired publish date, and optional notes.
 - Track requests and confirm a submitted collaboration as complete.
 - Message the creator inside an accepted collaboration.
+- Mark the agreed fee as deposited after acceptance.
+- Approve submitted work to complete the booking and release the tracked payment.
 
 ### Deferred
 
-Payments, standalone inboxes, message attachments, read receipts, typing indicators, negotiation, OAuth, email verification, agencies, team-management UI, reviews, analytics, AI search, and MCP integrations.
+Real payment processing, standalone inboxes, message attachments, read receipts, typing indicators, negotiation, OAuth, email verification, agencies, team-management UI, reviews, analytics, AI search, and MCP integrations.
 
 ## Workflow
 
 `pending → accepted → submitted → completed`
 
-A creator can instead move `pending → declined`. A booking snapshots the creator's fixed rate when requested. Commercial settlement happens outside the product.
+A creator can instead move `pending → declined`. A booking snapshots the creator's fixed rate when requested. After acceptance, the manual payment flow is `awaiting deposit → held → released → received`. Money moves outside Collab; these statuses only coordinate what both parties report.
 
 ## Architecture
 
@@ -57,6 +61,7 @@ The database is intentionally broader than the first UI:
 - `bookings` owns the commercial snapshot and status machine.
 - `deliverables` stores creator submissions separately from bookings.
 - `booking_messages` stores the lightweight participant thread for each collaboration.
+- `booking_payments` stores one escrow-like manual payment state per accepted booking.
 - `booking_events` provides an append-only audit history and future notification feed.
 
 This structure can add multi-creator campaigns, agency representation, proposals, messages, payment ledgers, analytics, and smarter discovery without replacing the core entities.
@@ -98,7 +103,27 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 ## Next slice
 
-Apply `202609120004_booking_messages.sql`, then exercise messaging from both sides of an accepted booking. After verification, deploy the messaging slice and prepare the short assignment walkthrough.
+Apply `202609120004_booking_messages.sql` and `202609120005_manual_payments.sql` in order. Then exercise messaging and the full manual payment sequence from both roles before deploying both slices.
+
+## Manual escrow-style payment tracking
+
+- Every accepted booking receives a one-to-one payment record; existing accepted bookings are backfilled as awaiting deposit, submitted bookings as held, and completed bookings as released.
+- Company users mark the snapshotted fee as deposited, moving it from `awaiting_deposit → held`; they may undo this only before a deliverable is submitted.
+- Creator deliverable submission now requires the payment to be held, enforced inside the existing atomic submission RPC.
+- Company approval atomically moves the booking `submitted → completed` and payment `held → released`.
+- Creators make the final `released → received` acknowledgement after payment arrives.
+- The collaboration detail page shows the fee, four-stage payment progress, timestamps, role-specific next action, and a clear disclaimer that Collab does not move money.
+- Direct payment writes are revoked. Participant access, company/creator roles, valid booking states, and all transitions are enforced through security-definer RPCs.
+- Payment funding, rollback, release, and receipt append records to the existing booking-event audit trail.
+
+Suggested subject: `feat: add manual escrow payment tracking`
+
+Body:
+
+- track deposited, held, released, and received payment states
+- gate delivery on held funds and release on company approval
+- add participant-specific payment controls to collaboration details
+- audit every manual payment transition in Supabase
 
 ## Collaboration messaging
 

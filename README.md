@@ -15,10 +15,12 @@ This project is an independent rebuild inspired by the core marketplace workflow
 3. The company sends a campaign request with a concise brief and desired date.
 4. The creator accepts or declines the request.
 5. Once accepted, both sides can message within that collaboration.
-6. The creator submits the published LinkedIn URL.
-7. The company confirms completion.
+6. The company manually marks the agreed fee as deposited and held.
+7. The creator submits the published LinkedIn URL.
+8. The company approves the work, completing the booking and releasing the payment status.
+9. The creator confirms receiving payment.
 
-Payments, standalone inboxes, attachments, read receipts, agencies, AI search, and negotiation are deliberately outside the first release.
+Collab only tracks these payment steps; money moves outside the product. Real payment processing, standalone inboxes, attachments, read receipts, agencies, AI search, and negotiation are deliberately outside the first release.
 
 ## Foundation
 
@@ -26,7 +28,7 @@ Payments, standalone inboxes, attachments, read receipts, agencies, AI search, a
 - Supabase Auth and Postgres with row-level security
 - Vercel deployment target
 - Semantic design tokens for a replaceable maroon-led visual theme
-- Scale-aware workspace, campaign, booking, deliverable, and event model
+- Scale-aware workspace, campaign, booking, payment, deliverable, message, and event model
 
 ## Local setup
 

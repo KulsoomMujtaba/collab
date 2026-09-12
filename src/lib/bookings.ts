@@ -15,6 +15,7 @@ export type BookingBase = {
   deliverable_public_url: string | null;
   deliverable_submitted_at: string | null;
   completed_at: string | null;
+  payment_status: PaymentStatus | null;
 };
 
 export type CreatorBooking = BookingBase & { company_name: string };
@@ -35,6 +36,16 @@ export type BookingMessage = {
   sender_role: "company" | "creator";
   body: string;
   created_at: string;
+};
+
+export type PaymentStatus = "awaiting_deposit" | "held" | "released" | "received";
+
+export type BookingPayment = {
+  booking_id: string;
+  payment_status: PaymentStatus;
+  funded_at: string | null;
+  released_at: string | null;
+  received_at: string | null;
 };
 
 export const messagingStatuses: BookingStatus[] = ["accepted", "submitted", "completed"];
