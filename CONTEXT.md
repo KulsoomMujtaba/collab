@@ -116,6 +116,13 @@ Apply `202609120004_booking_messages.sql`, `202609120005_manual_payments.sql`, a
 - `get_collaboration_overview()` is a participant-scoped security-definer RPC. It returns only accepted, submitted, completed, or cancelled bookings belonging to the signed-in creator or a member of the booking's company workspace.
 - The shared routes remain protected by session refresh middleware and redirect incomplete accounts to their role-specific onboarding flow.
 
+## Profile editing persistence
+
+- The shared onboarding form now distinguishes initial setup from an existing profile edit using `onboarding_completed_at`.
+- Company edit mode loads the company workspace name and persisted `company_profiles` values, so company name, website, description, and logo URL are prefilled after navigation or refresh.
+- A loading state prevents briefly presenting empty fields while existing profile data is fetched.
+- Completed profiles use **Save changes** and in-place confirmation instead of repeating the onboarding-only **Finish setup** success flow. Draft controls and completion progress remain limited to initial onboarding.
+
 Payment workspace redesign commit context:
 
 - lead with actual tracked, held, and needs-action values

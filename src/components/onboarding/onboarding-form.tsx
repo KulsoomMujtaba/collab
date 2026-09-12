@@ -2,6 +2,7 @@
 
 import { ArrowLeft, ArrowRight, BadgeCheck, Check, CircleCheck, LoaderCircle, Save, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { FormField, TextAreaField } from "@/components/ui/form-field";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,7 @@ const emptyCreator: CreatorDraft = { displayName: "", headline: "", bio: "", cou
 const emptyCompany: CompanyDraft = { companyName: "", websiteUrl: "", description: "", logoUrl: "" };
 
 export function OnboardingForm({ role }: { role: Role }) {
+  const router = useRouter();
   const [creator, setCreator] = useState<CreatorDraft>(emptyCreator);
   const [company, setCompany] = useState<CompanyDraft>(emptyCompany);
   const [step, setStep] = useState(0);
@@ -28,13 +30,16 @@ export function OnboardingForm({ role }: { role: Role }) {
   const [complete, setComplete] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     async function loadDraft() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) { setProfileLoading(false); return; }
       const { data } = await supabase.from("profiles").select("full_name, onboarding_data, onboarding_completed_at").eq("id", user.id).single();
+      setIsEditing(Boolean(data?.onboarding_completed_at));
       const draft = data?.onboarding_data as CreatorDraft | CompanyDraft | undefined;
       if (draft && Object.keys(draft).length) {
         if (role === "creator") setCreator(draft as CreatorDraft);
@@ -44,6 +49,22 @@ export function OnboardingForm({ role }: { role: Role }) {
         const { data: existing } = await supabase.from("creator_profiles").select("display_name, headline, bio, country, linkedin_url, avatar_url, follower_count, average_views, post_rate_cents, creator_niches(niches(name))").eq("user_id", user.id).single();
         if (existing) setCreator({ displayName: existing.display_name, headline: existing.headline, bio: existing.bio, country: existing.country, linkedinUrl: existing.linkedin_url, avatarUrl: existing.avatar_url ?? "", followerCount: String(existing.follower_count), averageViews: String(existing.average_views), postRate: String(existing.post_rate_cents / 100), niches: (existing.creator_niches as unknown as Array<{ niches: { name: string } | null }>).map((item) => item.niches?.name).filter((name): name is string => Boolean(name)) });
       } else if (role === "creator") setCreator((value) => ({ ...value, displayName: data?.full_name ?? "" }));
+      else {
+        const { data: membership } = await supabase.from("workspace_members").select("workspace_id").eq("user_id", user.id).limit(1).maybeSingle();
+        if (membership?.workspace_id) {
+          const [{ data: workspace }, { data: existing }] = await Promise.all([
+            supabase.from("workspaces").select("name").eq("id", membership.workspace_id).single(),
+            supabase.from("company_profiles").select("website_url, description, logo_url").eq("workspace_id", membership.workspace_id).maybeSingle(),
+          ]);
+          setCompany({
+            companyName: workspace?.name ?? data?.full_name ?? "",
+            websiteUrl: existing?.website_url ?? "",
+            description: existing?.description ?? "",
+            logoUrl: existing?.logo_url ?? "",
+          });
+        } else setCompany((value) => ({ ...value, companyName: data?.full_name ?? "" }));
+      }
+      setProfileLoading(false);
     }
     void loadDraft();
   }, [role]);
@@ -96,23 +117,34 @@ export function OnboardingForm({ role }: { role: Role }) {
           company_description: company.description, logo_url: company.logoUrl,
         });
     if (response.error) { setSaveError(response.error.message); setSaving(false); return; }
-    setSaving(false); setComplete(true);
+    setSaving(false);
+    if (isEditing) {
+      setSaved(true);
+      window.setTimeout(() => setSaved(false), 2000);
+      router.refresh();
+      return;
+    }
+    setComplete(true);
   }
 
   if (complete) return <SuccessState role={role} />;
 
   return (
     <main className="min-h-screen bg-background">
-      <header className="border-b border-border bg-surface"><div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8"><Link href="/" className="display text-2xl font-extrabold text-primary">Collab<span className="text-accent">.</span></Link><div className="flex items-center gap-1 sm:gap-3"><span className={cn("hidden items-center gap-1.5 text-xs font-semibold text-success sm:flex", !saved && "invisible")}><Check size={14} /> Draft saved</span><button onClick={() => void saveDraft()} disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-3 text-sm font-semibold hover:bg-surface-muted disabled:opacity-60 sm:px-4">{saving ? <LoaderCircle size={16} className="animate-spin" /> : <Save size={16} />} <span className="hidden sm:inline">Save draft</span></button><SignOutButton /></div></div></header>
+      <header className="border-b border-border bg-surface"><div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8"><Link href="/" className="display text-2xl font-extrabold text-primary">Collab<span className="text-accent">.</span></Link><div className="flex items-center gap-1 sm:gap-3"><span className={cn("hidden items-center gap-1.5 text-xs font-semibold text-success sm:flex", !saved && "invisible")}><Check size={14} /> {isEditing ? "Changes saved" : "Draft saved"}</span>{!profileLoading && !isEditing && <button onClick={() => void saveDraft()} disabled={saving} className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-3 text-sm font-semibold hover:bg-surface-muted disabled:opacity-60 sm:px-4">{saving ? <LoaderCircle size={16} className="animate-spin" /> : <Save size={16} />} <span className="hidden sm:inline">Save draft</span></button>}<SignOutButton /></div></div></header>
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[240px_1fr] lg:py-14">
-        <aside><p className="text-xs font-bold uppercase tracking-[.16em] text-primary">{role} setup</p><h1 className="display mt-3 text-3xl font-extrabold">Make a strong first impression.</h1><p className="mt-3 text-sm leading-6 text-muted">You can edit these details later.</p><div className="mt-7 h-2 overflow-hidden rounded-full bg-surface-muted"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${completion}%` }} /></div><p className="mt-2 text-xs font-semibold text-muted">{completion}% complete</p>{role === "creator" && <ol className="mt-9 hidden space-y-5 lg:block">{creatorSteps.map((label, index) => <li key={label} className={cn("flex items-center gap-3 text-sm font-semibold", index <= step ? "text-foreground" : "text-muted/60")}><span className={cn("flex h-7 w-7 items-center justify-center rounded-full border text-xs", index < step ? "border-primary bg-primary text-primary-foreground" : index === step ? "border-primary text-primary" : "border-border")}>{index < step ? <Check size={14} /> : index + 1}</span>{label}</li>)}</ol>}</aside>
-        <section className="rounded-3xl border border-border bg-surface p-5 card-shadow sm:p-8 lg:p-10">{role === "company" ? <CompanyFields value={company} setValue={setCompany} errors={errors} /> : step === 0 ? <CreatorIdentity value={creator} setValue={setCreator} errors={errors} /> : step === 1 ? <CreatorAudience value={creator} setValue={setCreator} errors={errors} /> : <CreatorPreview value={creator} />}
+        <aside><p className="text-xs font-bold uppercase tracking-[.16em] text-primary">{role} {isEditing ? "profile" : "setup"}</p><h1 className="display mt-3 text-3xl font-extrabold">{isEditing ? "Keep your profile current." : "Make a strong first impression."}</h1><p className="mt-3 text-sm leading-6 text-muted">{isEditing ? "Update what collaborators see across Collab." : "You can edit these details later."}</p>{!isEditing && <><div className="mt-7 h-2 overflow-hidden rounded-full bg-surface-muted"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${completion}%` }} /></div><p className="mt-2 text-xs font-semibold text-muted">{completion}% complete</p></>}{role === "creator" && <ol className="mt-9 hidden space-y-5 lg:block">{creatorSteps.map((label, index) => <li key={label} className={cn("flex items-center gap-3 text-sm font-semibold", index <= step ? "text-foreground" : "text-muted/60")}><span className={cn("flex h-7 w-7 items-center justify-center rounded-full border text-xs", index < step ? "border-primary bg-primary text-primary-foreground" : index === step ? "border-primary text-primary" : "border-border")}>{index < step ? <Check size={14} /> : index + 1}</span>{label}</li>)}</ol>}</aside>
+        <section className="rounded-3xl border border-border bg-surface p-5 card-shadow sm:p-8 lg:p-10">{profileLoading ? <ProfileLoading /> : role === "company" ? <CompanyFields value={company} setValue={setCompany} errors={errors} /> : step === 0 ? <CreatorIdentity value={creator} setValue={setCreator} errors={errors} /> : step === 1 ? <CreatorAudience value={creator} setValue={setCreator} errors={errors} /> : <CreatorPreview value={creator} />}
           {saveError && <p role="alert" className="mt-6 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">{saveError}</p>}
-          <div className="mt-9 flex items-center justify-between border-t border-border pt-6">{role === "creator" && step > 0 ? <button onClick={() => { setErrors({}); setStep((value) => value - 1); }} className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-foreground"><ArrowLeft size={17} /> Back</button> : <span />}{role === "creator" && step < 2 ? <button onClick={() => void next()} disabled={saving} className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-60">{saving ? <LoaderCircle size={17} className="animate-spin" /> : <>Continue <ArrowRight size={17} /></>}</button> : <button onClick={() => void finish()} disabled={saving} className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-60">{saving ? <LoaderCircle size={17} className="animate-spin" /> : <Sparkles size={17} />} {saving ? "Saving..." : role === "creator" ? "Finish profile" : "Finish setup"}</button>}</div>
+          {!profileLoading && <div className="mt-9 flex items-center justify-between border-t border-border pt-6">{role === "creator" && step > 0 ? <button onClick={() => { setErrors({}); setStep((value) => value - 1); }} className="inline-flex items-center gap-2 text-sm font-semibold text-muted hover:text-foreground"><ArrowLeft size={17} /> Back</button> : <span />}{role === "creator" && step < 2 ? <button onClick={() => void next()} disabled={saving} className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-60">{saving ? <LoaderCircle size={17} className="animate-spin" /> : <>Continue <ArrowRight size={17} /></>}</button> : <button onClick={() => void finish()} disabled={saving} className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-60">{saving ? <LoaderCircle size={17} className="animate-spin" /> : isEditing ? <Save size={17} /> : <Sparkles size={17} />} {saving ? "Saving..." : isEditing ? "Save changes" : role === "creator" ? "Finish profile" : "Finish setup"}</button>}</div>}
         </section>
       </div>
     </main>
   );
+}
+
+function ProfileLoading() {
+  return <div aria-label="Loading profile" className="animate-pulse"><div className="h-4 w-28 rounded-full bg-surface-muted" /><div className="mt-4 h-8 w-64 max-w-full rounded-xl bg-surface-muted" /><div className="mt-8 grid gap-6 sm:grid-cols-2">{Array.from({ length: 4 }, (_, index) => <div key={index}><div className="h-3 w-24 rounded-full bg-surface-muted" /><div className="mt-2 h-12 rounded-xl bg-surface-muted" /></div>)}</div></div>;
 }
 
 function CompanyFields({ value, setValue, errors }: { value: CompanyDraft; setValue: (value: CompanyDraft) => void; errors: FieldErrors }) {
