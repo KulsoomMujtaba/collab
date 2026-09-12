@@ -29,7 +29,7 @@ Collab only tracks these payment steps; money moves outside the product. Real pa
 - Vercel deployment target
 - Semantic design tokens for a replaceable maroon-led visual theme
 - Scale-aware workspace, campaign, booking, payment, deliverable, message, and event model
-- Role-aware workspace navigation with collaboration and payment overviews
+- Role-aware workspace navigation with action-grouped collaborations and a visual payment pipeline
 
 ## Local setup
 

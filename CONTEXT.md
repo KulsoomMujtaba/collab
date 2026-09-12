@@ -111,9 +111,19 @@ Apply `202609120004_booking_messages.sql`, `202609120005_manual_payments.sql`, a
 - Both roles can now open `/collaborations`, where accepted work is grouped into **Needs your action**, **In progress**, and **Completed** sections.
 - Collaboration cards combine booking and payment state, counterpart details, fee, publish date, and the latest persisted message with a direct link back to the existing detail page.
 - Both roles can open `/payments` to filter their manually tracked payments by awaiting deposit, held, released, or received state.
+- The payment workspace intentionally differs from request and collaboration lists: it leads with real aggregate values, presents the four payment states as a selectable visual pipeline, and uses compact ledger-style activity rows.
 - The payment overview permits only the low-risk next actions: companies can mark an eligible deposit as held and creators can confirm receipt after release. Deliverable approval/payment release, rollback, delivery, and conversation stay in the full collaboration detail.
 - `get_collaboration_overview()` is a participant-scoped security-definer RPC. It returns only accepted, submitted, completed, or cancelled bookings belonging to the signed-in creator or a member of the booking's company workspace.
 - The shared routes remain protected by session refresh middleware and redirect incomplete accounts to their role-specific onboarding flow.
+
+Payment workspace redesign commit context:
+
+- lead with actual tracked, held, and needs-action values
+- turn payment states into a selectable visual pipeline
+- present individual payments as compact ledger activity
+- preserve participant-safe actions and detail-page handoff
+
+Suggested subject: `feat: redesign payment workspace`
 
 Suggested subject: `feat: add collaboration and payment overviews`
 
