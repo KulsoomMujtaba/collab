@@ -48,6 +48,28 @@ export type BookingPayment = {
   received_at: string | null;
 };
 
+export type CollaborationOverview = {
+  booking_id: string;
+  booking_status: BookingStatus;
+  campaign_title: string;
+  desired_publish_date: string;
+  price_cents: number;
+  currency: string;
+  created_at: string;
+  deliverable_public_url: string | null;
+  payment_status: PaymentStatus | null;
+  payment_funded_at: string | null;
+  payment_released_at: string | null;
+  payment_received_at: string | null;
+  viewer_role: "company" | "creator";
+  counterpart_name: string;
+  counterpart_detail: string;
+  counterpart_avatar_url: string | null;
+  last_message_body: string | null;
+  last_message_sender_name: string | null;
+  last_message_at: string | null;
+};
+
 export const messagingStatuses: BookingStatus[] = ["accepted", "submitted", "completed"];
 
 export const bookingFilters: Array<{ value: "all" | BookingStatus; label: string }> = [

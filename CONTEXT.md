@@ -103,7 +103,26 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 ## Next slice
 
-Apply `202609120004_booking_messages.sql` and `202609120005_manual_payments.sql` in order. Then exercise messaging and the full manual payment sequence from both roles before deploying both slices.
+Apply `202609120004_booking_messages.sql`, `202609120005_manual_payments.sql`, and `202609120006_collaboration_overviews.sql` in order. Then exercise messaging, overview visibility, and the full manual payment sequence from both roles before deploying these slices.
+
+## Workspace collaboration and payment overviews
+
+- A shared `WorkspaceNav` keeps the company and creator sidebars consistent while preserving their role-specific home, request, and profile destinations.
+- Both roles can now open `/collaborations`, where accepted work is grouped into **Needs your action**, **In progress**, and **Completed** sections.
+- Collaboration cards combine booking and payment state, counterpart details, fee, publish date, and the latest persisted message with a direct link back to the existing detail page.
+- Both roles can open `/payments` to filter their manually tracked payments by awaiting deposit, held, released, or received state.
+- The payment overview permits only the low-risk next actions: companies can mark an eligible deposit as held and creators can confirm receipt after release. Deliverable approval/payment release, rollback, delivery, and conversation stay in the full collaboration detail.
+- `get_collaboration_overview()` is a participant-scoped security-definer RPC. It returns only accepted, submitted, completed, or cancelled bookings belonging to the signed-in creator or a member of the booking's company workspace.
+- The shared routes remain protected by session refresh middleware and redirect incomplete accounts to their role-specific onboarding flow.
+
+Suggested subject: `feat: add collaboration and payment overviews`
+
+Body:
+
+- expose collaborations and payments in both role sidebars
+- group active work by next action with latest-message context
+- add filterable manual payment tracking and safe shortcuts
+- secure shared overview data to booking participants
 
 ## Collaboration flow UX refinement
 

@@ -1,6 +1,6 @@
 # Collab
 
-Collab is a focused marketplace for B2B creator partnerships. Companies discover credible LinkedIn creators, send a structured campaign request, and follow the collaboration through acceptance, delivery, and completion. Once a request is accepted, both sides can keep essential coordination in a lightweight collaboration thread.
+Collab is a focused marketplace for B2B creator partnerships. Companies discover credible LinkedIn creators, send a structured campaign request, and follow the collaboration through acceptance, delivery, and completion. Once a request is accepted, both sides can coordinate in a lightweight collaboration thread and see active work and manually tracked payments from dedicated workspace views.
 
 **Live application:** [naano-wheat.vercel.app](https://naano-wheat.vercel.app)
 
@@ -29,6 +29,7 @@ Collab only tracks these payment steps; money moves outside the product. Real pa
 - Vercel deployment target
 - Semantic design tokens for a replaceable maroon-led visual theme
 - Scale-aware workspace, campaign, booking, payment, deliverable, message, and event model
+- Role-aware workspace navigation with collaboration and payment overviews
 
 ## Local setup
 

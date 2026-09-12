@@ -11,6 +11,8 @@ Read `README.md` and `CONTEXT.md` before changing code. Treat `CONTEXT.md` as th
 - Enforce authorization in Supabase RLS and server-side code, not only in the interface.
 - Model money as integer minor units and snapshot commercial terms on a booking.
 - Preserve unrelated work and never commit secrets or `.env.local`.
+- Keep shared workspace destinations in `WorkspaceNav`; avoid reintroducing role-page-specific sidebar copies.
+- Treat overview pages as summaries. Consequential or context-heavy collaboration actions belong on `/bookings/[id]`.
 - After every code change, update `CONTEXT.md` with the current implementation status and meaningful decisions.
 - Run `npm run lint`, `npm run typecheck`, and a production build when the environment permits.
 - Suggest a concise imperative commit subject and a short body listing everything included in the commit.
