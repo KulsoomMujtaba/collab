@@ -105,6 +105,23 @@ Phase 1 frontend validation currently passes across all routes: `/`, `/login`, `
 
 Apply `202609120004_booking_messages.sql` and `202609120005_manual_payments.sql` in order. Then exercise messaging and the full manual payment sequence from both roles before deploying both slices.
 
+## Collaboration flow UX refinement
+
+- Creators now submit the public LinkedIn deliverable from the collaboration detail page, directly beside the campaign, payment, and message context.
+- The creator request list no longer embeds the full URL form; a funds-held callout links to the focused submission surface instead.
+- Company and creator request cards show a compact semantic payment-status badge alongside the booking status.
+- Company cards expose the low-risk `awaiting_deposit → held` action, while creator cards expose the final `released → received` confirmation.
+- Deliverable review and release, undoing a deposit, and URL submission remain on the detail page to keep list cards readable and prevent consequential actions without context.
+
+Suggested subject: `feat: streamline collaboration payment actions`
+
+Body:
+
+- move creator deliverable submission into collaboration details
+- show payment status across company and creator request cards
+- add safe next-step payment actions to request lists
+- keep review and rollback controls in the focused detail view
+
 ## Manual escrow-style payment tracking
 
 - Every accepted booking receives a one-to-one payment record; existing accepted bookings are backfilled as awaiting deposit, submitted bookings as held, and completed bookings as released.
